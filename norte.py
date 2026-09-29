@@ -1,13 +1,17 @@
-from rich import print
+
+
 import os
 import json
  
+# Função que limpa a tela do terminal.
 def limparTela():
     os.system('cls')
  
+# Função que permite o usuário digitar ENTER para o programa continuar.
 def enterParaContinuar():
     input("Digite ENTER para continuar...")
  
+# Função que carrega o arquivo .json do catálogo.
 def carregarCatalogo():
     try:
         with open("catalogo.json", "r", encoding="utf-8") as arquivo:
@@ -15,10 +19,12 @@ def carregarCatalogo():
     except FileNotFoundError:
         return []
  
+# Função que salva o catálogo no arquivo .json.
 def salvarCatalogo(catalogo):
     with open("catalogo.json", "w", encoding="utf-8") as arquivo:
         json.dump(catalogo, arquivo, ensure_ascii=False, indent=4)
  
+# Função que pede um texto e não deixa o usuário deixar vazio.
 def pedeTexto(mensagem):
     texto = input(mensagem).strip()
     while texto == "":
@@ -26,6 +32,7 @@ def pedeTexto(mensagem):
         texto = input(mensagem).strip()
     return texto
  
+# Função que pede um número inteiro e verifica se está dentro do limite.
 def pedeInteiro(mensagem, minimo, maximo):
     while True:
         try:
@@ -37,15 +44,18 @@ def pedeInteiro(mensagem, minimo, maximo):
         except ValueError:
             print("Só aceitamos números.")
  
+# Função que deixa a placa no padrão (sem espaços, sem hífen e em maiúsculo).
 def limpaPlaca(texto):
     placa = texto.replace(" ", "").replace("-", "").upper()
     return placa
  
+# Função que busca um veículo pela placa.
 def buscarVeiculoPorPlaca(catalogo, placa):
     for i in range(len(catalogo)):
         if catalogo[i]["placa"] == placa:
             return catalogo[i]
  
+# Função que pede a placa, verifica o tamanho e não deixa cadastrar placa repetida.
 def pedePlaca(catalogo):
     while True:
         placa = limpaPlaca(input("DIGITE A PLACA DO VEÍCULO (ex: ABC1D23): "))
@@ -56,9 +66,13 @@ def pedePlaca(catalogo):
         else:
             return placa
  
+# Função que cadastra todas as informações de um veículo.
 def cadastrarVeiculo(catalogo):
+ 
     limparTela()
+ 
     print("[bold green]-=@ CADASTRO DO VEÍCULO @=-[/bold green]\n")
+ 
     placa = pedePlaca(catalogo)
     marca = pedeTexto("DIGITE A MARCA DO VEÍCULO: ").title()
     modelo = pedeTexto("DIGITE O MODELO DO VEÍCULO: ").title()
@@ -66,6 +80,7 @@ def cadastrarVeiculo(catalogo):
     cor = pedeTexto("DIGITE A COR DO VEÍCULO: ").capitalize()
     preco = pedeInteiro("DIGITE O PREÇO DO VEÍCULO (em reais, sem centavos): ", 1, 10000000)
     km = pedeInteiro("DIGITE A QUILOMETRAGEM (KM): ", 0, 1000000)
+ 
     novo_veiculo = {"placa": placa,
                     "marca": marca,
                     "modelo": modelo,
@@ -77,13 +92,16 @@ def cadastrarVeiculo(catalogo):
  
     catalogo.append(novo_veiculo)
     salvarCatalogo(catalogo)
-   
+ 
     print("\n[bold green]Veículo cadastrado com sucesso![/bold green]")
     print(f"PLACA: [bold red]{placa}[/bold red]")
     enterParaContinuar()
  
+# Função que atualiza o status de um veículo (Disponível, Reservado ou Vendido).
 def atualizarStatusVeiculo(catalogo):
+ 
     limparTela()
+ 
     print("[bold green]-=@ ATUALIZAR STATUS DO VEÍCULO @=-[/bold green]\n")
  
     if len(catalogo) == 0:
@@ -91,6 +109,7 @@ def atualizarStatusVeiculo(catalogo):
     else:
         placa = limpaPlaca(input("Digite a placa do veículo: "))
         veiculo = buscarVeiculoPorPlaca(catalogo, placa)
+ 
         if veiculo:
             print(f"\n{veiculo['placa']} - {veiculo['marca']} {veiculo['modelo']} {veiculo['ano']}")
             print(f"STATUS ATUAL: {veiculo['status']}")
@@ -122,6 +141,7 @@ Escolha o novo status:
  
     enterParaContinuar()
  
+# Função que classifica a pré-aprovação de acordo com o quanto a parcela pesa na renda.
 def classificarPreAprovacao(comprometimento):
     if comprometimento <= 0.30:
         resultado = "APROVADO"
@@ -131,6 +151,7 @@ def classificarPreAprovacao(comprometimento):
         resultado = "REPROVADO"
     return resultado
  
+# Função que simula a pré-aprovação de financiamento para um veículo.
 def simularPreAprovacao(catalogo):
  
     limparTela()
@@ -162,11 +183,12 @@ def simularPreAprovacao(catalogo):
             comprometimento = parcela / renda
  
             resultado = classificarPreAprovacao(comprometimento)
+ 
             print("\n" + "=" * 40)
             print(f"VALOR FINANCIADO: R$ {valor_financiado}")
             print(f"PARCELA ESTIMADA: R$ {parcela} x {prazo} meses")
             print(f"COMPROMETIMENTO DA RENDA: {comprometimento * 100}%")
-             
+ 
             match resultado:
                 case "APROVADO":
                     print("RESULTADO: [bold green]APROVADO[/bold green]")
@@ -174,26 +196,25 @@ def simularPreAprovacao(catalogo):
                     print("RESULTADO: [bold yellow]EM ANÁLISE[/bold yellow]")
                 case _:
                     print("RESULTADO: [bold red]REPROVADO[/bold red]")
-             
+ 
             print("=" * 40)
             print("Simulação com juros simples de 1,5% ao mês, sem valor contratual.")
         else:
             print("Veículo não encontrado.")
-             
+ 
     enterParaContinuar()
-             
-           
+ 
+# Função que exibe o menu de opções para o usuário.
 def exibirMenu():
     limparTela()
     print("=" * 40)
-    print("""      
-    [bold green]-=@ BEM VINDO À TECHCAR @=-[/bold green]
-             
-    Escolha uma opção para continuar:
-             
+    print("""      [bold green]-=@ BEM VINDO À TECHCAR @=-[/bold green]
+ 
+Escolha uma opção para continuar:
+ 
     1-Cadastrar veículo
     2-Atualizar status do veículo
     3-Simular financiamento
     4-Sair
-                """)
+    """)
     print("=" * 40)
